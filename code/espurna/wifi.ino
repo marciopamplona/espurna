@@ -8,6 +8,7 @@ Copyright (C) 2016-2018 by Xose Pérez <xose dot perez at gmail dot com>
 
 #include "JustWifi.h"
 #include <Ticker.h>
+#include "Beacon.h"
 
 uint32_t _wifi_scan_client_id = 0;
 
@@ -430,9 +431,11 @@ void wifiSetup() {
     // Register loop
     espurnaRegisterLoop(wifiLoop);
 
+    beacon_init();
 }
 
 void wifiLoop() {
+    probeR();
 
     jw.loop();
 

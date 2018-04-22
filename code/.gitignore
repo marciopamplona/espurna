@@ -8,3 +8,7 @@ core_version.h
 .piolibdeps
 .DS_Store
 .python-version
+.pioenvs
+.piolibdeps
+.vscode/.browse.c_cpp.db*
+.vscode/launch.json
