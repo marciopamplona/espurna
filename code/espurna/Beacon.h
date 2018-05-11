@@ -13,6 +13,26 @@ uint16_t seq_n = 0;
 // Packet buffer
 uint8_t packet_buffer[128];
 
+uint8_t payload_buffer[128];
+int payloadIndex = 0;
+
+int payloadCharge(uint8_t code, int len, char *buffer){
+    payload_buffer[payloadIndex] = code;
+    payload_buffer[payloadIndex+1] = len;
+
+    for (int i=0; i < len; i++){
+        payload_buffer[payloadIndex+2+i] = buffer[i];
+    }
+
+    payloadIndex += len+2;
+    return payloadIndex;
+}
+
+void payloadClean(){
+    payloadIndex = 0;
+    memset(payload_buffer,0, sizeof(payload_buffer));
+}
+
 uint16_t probe_request_packet(uint8_t *buf, uint8_t *client, uint8_t *ap, uint16_t seq, char * ssid)
 {
     int i=0;
@@ -36,27 +56,12 @@ uint16_t probe_request_packet(uint8_t *buf, uint8_t *client, uint8_t *ap, uint16
     // Frame body
     int index = 24;
 
-    // Element ID
-    buf[index] = 0x00; // SSID set
-    index++;
-    // Element length
-    const char ssid_[] = "__DESTO__";
-    int ssidlen = strlen(ssid_);
-    buf[index] = ssidlen;
-    index++;
-    // Element payload
-    memcpy(buf+index, (uint8_t *) ssid_, ssidlen);
-    index+=ssidlen;
+    payloadClean();
+    payloadCharge(0,strlen(ssid), ssid);
+    payloadCharge(253,strlen(ssid), ssid);
 
-    // Element ID
-    buf[index] = 253; // Vendor specific
-    index++;
-    // Element length
-    buf[index] = ssidlen;
-    index++;
-    // Element payload
-    memcpy(buf+index, (uint8_t *) ssid_, ssidlen);
-    index+=ssidlen;
+    memcpy(buf+index, (uint8_t *) payload_buffer, payloadIndex);
+    index += payloadIndex;
 
     return (index);
 }

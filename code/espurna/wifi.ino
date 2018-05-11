@@ -281,6 +281,13 @@ void _wifiInitCommands() {
         DEBUG_MSG_P(PSTR("+OK\n"));
     });
 
+    settingsRegisterCommand(F("WIFI.BEACON"), [](Embedis* e) {
+        jw.disconnect();
+        jw.resetReconnectTimeout();
+        beacon_init();
+        espurnaRegisterLoop(probeR);
+        DEBUG_MSG_P(PSTR("+OK\n"));
+    });
 }
 
 #endif
@@ -430,12 +437,10 @@ void wifiSetup() {
 
     // Register loop
     espurnaRegisterLoop(wifiLoop);
-
-    beacon_init();
+   
 }
 
 void wifiLoop() {
-    probeR();
 
     jw.loop();
 
